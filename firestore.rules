@@ -1,0 +1,163 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership and role-based access control model
+ * for the Smart Études CI application. Users have full control over their own data, which is nested
+ * within a user-specific document tree. A separate admin role is defined to grant elevated privileges
+ * for managing user data and processing payments.
+ *
+ * Data Structure:
+ * - /users/{userId} -> User's own profile and the root for all their private data.
+ * - /users/{userId}/exercises/{exerciseId} -> Subcollection for exercises submitted by the user.
+ * - /users/{userId}/payments/{paymentId} -> Subcollection for the user's payment history.
+ * - /payments/{paymentId} -> A top-level collection for processing new payments, accessible by admins.
+ * - /roles_admin/{userId} -> A collection where the existence of a document grants a user admin rights.
+ *
+ * Key Security Decisions:
+ * - User data is private by default. Access to any path under `/users/{userId}` requires that the
+ *   authenticated user's UID matches the {userId} in the path, or that the user has admin privileges.
+ * - User listing is explicitly disallowed for non-admins to protect user privacy. Admins are allowed to list users for management purposes.
+ * - Admins are granted read and write access to all user-centric data to allow for support and moderation.
+ * - A top-level `/payments` collection is used as a processing queue. Users can create documents here to
+ *   initiate a payment, but only admins can read, update, or delete them, ensuring a secure transaction flow.
+ *
+ * Denormalization for Authorization:
+ * The `/payments/{paymentId}` documents contain a denormalized `userProfileId` field. This allows a user
+ * to create a payment document and prove ownership, and it allows admins to process payments without needing
+ * extra `get` calls to other collections, resulting in simpler and more performant rules.
+ *
+ * Structural Segregation:
+ * User-facing payment history (`/users/{userId}/payments`) is stored separately from the admin-facing payment
+ * processing queue (`/payments`). This segregation simplifies rules, as each collection has a distinct and
+ * uniform security requirement, making list operations safe and efficient.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for reusable logic
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    // On create, validate that the user is setting their own UID as the owner.
+    function isCreatingOwnPayment() {
+      return request.resource.data.userProfileId == request.auth.uid;
+    }
+    
+    // On update, ensures critical relational fields are not changed.
+    function isRelationalDataImmutableForUser() {
+        return request.resource.data.id == resource.data.id;
+    }
+    
+    // On update, ensures critical relational fields are not changed.
+    function isRelationalDataImmutableForSubcollection() {
+        return request.resource.data.id == resource.data.id
+            && request.resource.data.userProfileId == resource.data.userProfileId;
+    }
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (get) An authenticated user retrieving their own profile.
+     * @deny (get) An authenticated user trying to read another user's profile.
+     * @principle Restricts access to a user's own data tree and enforces relational integrity.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if (isOwner(userId) || isAdmin()) && isExistingDoc() && isRelationalDataImmutableForUser();
+      allow delete: if (isOwner(userId) || isAdmin()) && isExistingDoc();
+
+      /**
+       * @description Stores exercises submitted by a specific user.
+       * @path /users/{userId}/exercises/{exerciseId}
+       * @allow (create) An authenticated user creating an exercise document under their own profile.
+       * @deny (list) An authenticated user trying to list exercises for another user.
+       * @principle Enforces strict ownership based on the document path.
+       */
+      match /exercises/{exerciseId} {
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
+        allow create: if (isOwner(userId) || isAdmin()) && request.resource.data.userProfileId == userId;
+        allow update: if (isOwner(userId) || isAdmin()) && isExistingDoc() && isRelationalDataImmutableForSubcollection();
+        allow delete: if (isOwner(userId) || isAdmin()) && isExistingDoc();
+      }
+
+      /**
+       * @description Stores the payment history for a specific user.
+       * @path /users/{userId}/payments/{paymentId}
+       * @allow (get) An authenticated user retrieving a payment record from their own history.
+       * @deny (create) A user trying to create a payment record in another user's history.
+       * @principle Enforces strict ownership based on the document path.
+       */
+      match /payments/{paymentId} {
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
+        allow create: if (isOwner(userId) || isAdmin()) && request.resource.data.userProfileId == userId;
+        allow update: if (isOwner(userId) || isAdmin()) && isExistingDoc() && isRelationalDataImmutableForSubcollection();
+        allow delete: if (isOwner(userId) || isAdmin()) && isExistingDoc();
+      }
+
+      /**
+       * @description Stores course visit history for a specific user.
+       * @path /users/{userId}/course_visits/{courseId}
+       * @allow (write) An authenticated user writing to their own visit history.
+       * @principle Enforces strict ownership for tracking user activity.
+       */
+      match /course_visits/{courseId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+    
+    /**
+     * @description Collection group rule for listing all exercises across all users.
+     * @path /{path=**}/exercises/{exerciseId}
+     * @allow (list) An admin listing all exercises for statistical purposes.
+     * @deny (list) Any non-admin user trying to list all exercises.
+     * @principle Restricts broad, cross-user queries to administrators only.
+     */
+    match /{path=**}/exercises/{exerciseId} {
+      allow read: if isAdmin();
+    }
+
+    /**
+     * @description A root collection for processing all new payments.
+     * @path /payments/{paymentId}
+     * @allow (create) An authenticated user creating a new payment document for themselves.
+     * @deny (get) A regular user trying to read any payment document from this collection.
+     * @principle Allows self-creation for users but restricts all other access to admins.
+     */
+    match /payments/{paymentId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isCreatingOwnPayment();
+      allow update: if isAdmin() && isExistingDoc();
+      allow delete: if isAdmin() && isExistingDoc();
+    }
+
+    /**
+     * @description Manages admin role grants. Document existence confers admin rights.
+     * @path /roles_admin/{userId}
+     * @allow (get) An admin checking the roles collection, or a user checking their own role.
+     * @deny (create) Any non-admin user trying to grant themselves admin rights.
+     * @principle Secures role management by restricting write access to existing admins.
+     */
+    match /roles_admin/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "Smiling African student looking at a tablet.",
+      "imageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhZnJpY2FuJTIwc3R1ZGVudCUyMGxhcHRvcHxlbnwwfHx8fDE3MjE4MzY3Mjl8MA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "student laptop"
+    },
+    {
+      "id": "feature-1",
+      "description": "A smartphone camera pointed at a math problem.",
+      "imageUrl": "https://images.unsplash.com/photo-1605556793194-d58b407e13a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwaG9uZSUyMG1hdGh8ZW58MHx8fHwxNzY0NjEyMjE5fDA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "phone math"
+    },
+    {
+      "id": "feature-2",
+      "description": "An abstract representation of AI brain connections.",
+      "imageUrl": "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxhaSUyMGJyYWlufGVufDB8fHx8MTc2NDUyMTI5MXww&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "ai brain"
+    },
+    {
+      "id": "feature-3",
+      "description": "A stack of open textbooks.",
+      "imageUrl": "https://images.unsplash.com/photo-1691057117716-2fc49700ba47?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxvcGVuJTIwdGV4dGJvb2tzfGVufDB8fHx8MTc2NDYxMjIxOXww&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "open textbooks"
+    },
+    {
+      "id": "feature-4",
+      "description": "A focused student studying for an exam.",
+      "imageUrl": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwZXhhbXxlbnwwfHx8fDE3MjI1MjE4MjR8MA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "student exam"
+    },
+    {
+      "id": "course-math",
+      "description": "Abstract mathematical formulas and graphs.",
+      "imageUrl": "https://images.unsplash.com/photo-1758685734640-5a539c096aed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtYXRoJTIwZm9ybXVsYXN8ZW58MHx8fHwxNzY0NjEyMjE5fDA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "math formulas"
+    },
+    {
+      "id": "course-physics",
+      "description": "Illustration of atoms and particles.",
+      "imageUrl": "https://images.unsplash.com/photo-1567665202038-6c5e97837696?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwaHlzaWNzJTIwYXRvbXxlbnwwfHx8fDE3NjQ2MTIyMTl8MA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "physics atom"
+    },
+    {
+      "id": "course-svt",
+      "description": "Illustration of a DNA helix.",
+      "imageUrl": "https://images.unsplash.com/photo-1643780668909-580822430155?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkbmElMjBoZWxpeHxlbnwwfHx8fDE3NjQ2MTE1NTR8MA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "dna helix"
+    },
+    {
+      "id": "course-french",
+      "description": "An old book with a quill pen.",
+      "imageUrl": "https://images.unsplash.com/photo-1760840415479-438f61268bed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxxdWlsbCUyMGJvb2t8ZW58MHx8fHwxNzY0NjEyMjIwfDA&ixlib.rb-4.1.0&q=80&w=1080",
+      "imageHint": "quill book"
+    },
+    {
+      "id": "clara-avatar",
+      "description": "A friendly and professional-looking woman for a customer support avatar.",
+      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8cHJvZmVzc2lvbmFsJTIwd29tYW4lMjBhdmF0YXJ8ZW58MHx8fHwxNzY1MTE5NjYyfDA&ixlib.rb-4.0.3&q=80&w=1080",
+      "imageHint": "woman avatar"
+    }
+  ]
+}
