@@ -28,25 +28,25 @@ function CourseTracker() {
 }
 
 const geographyLessons = [
-  { num: 'G1', title: 'DYNAMISME DEMOGRAPHIQUE ET QUALITE DE LA VIE EN CÔTE D\'IVOIRE', pdfHref: '#' },
-  { num: 'G2', title: 'LA CROISSANCE DEMOGRAPHIQUE MONDIALE ET SES PROBLEMES', pdfHref: '#' },
-  { num: 'T2 L1', title: 'L\'URBANISATION DANS LES PAYS EN DEVELOPPEMENT: exemple de la Côte d\'Ivoire', pdfHref: '#' },
-  { num: 'T2 L2', title: 'L\'URBANISATION DANS LES PAYS DEVELOPPES: exemple de la France', pdfHref: '#' },
-  { num: 'T3 L1', title: 'L\'ORGANISATION ADMINISTRATIVE DE LA CÔTE D\'IVOIRE', pdfHref: '#' },
-  { num: 'T3 L2', title: 'L\'AMENAGEMENT DU TERRITOIRE IVOIRIEN', pdfHref: '#' },
-  { num: 'T4 L1', title: 'LES FACTEURS DE LA MONDIALISATION', pdfHref: '#' },
-  { num: 'T4 L2', title: 'LES CONSEQUENCES DE LA MONDIALISATION', pdfHref: '#' },
+  { num: 'G1', title: 'DYNAMISME DEMOGRAPHIQUE ET QUALITE DE LA VIE EN CÔTE D\'IVOIRE', pdfHref: '#', videoHref: '#' },
+  { num: 'G2', title: 'LA CROISSANCE DEMOGRAPHIQUE MONDIALE ET SES PROBLEMES', pdfHref: '#', videoHref: '#' },
+  { num: 'T2 L1', title: 'L\'URBANISATION DANS LES PAYS EN DEVELOPPEMENT: exemple de la Côte d\'Ivoire', pdfHref: '#', videoHref: '#' },
+  { num: 'T2 L2', title: 'L\'URBANISATION DANS LES PAYS DEVELOPPES: exemple de la France', pdfHref: '#', videoHref: '#' },
+  { num: 'T3 L1', title: 'L\'ORGANISATION ADMINISTRATIVE DE LA CÔTE D\'IVOIRE', pdfHref: '#', videoHref: '#' },
+  { num: 'T3 L2', title: 'L\'AMENAGEMENT DU TERRITOIRE IVOIRIEN', pdfHref: '#', videoHref: '#' },
+  { num: 'T4 L1', title: 'LES FACTEURS DE LA MONDIALISATION', pdfHref: '#', videoHref: '#' },
+  { num: 'T4 L2', title: 'LES CONSEQUENCES DE LA MONDIALISATION', pdfHref: '#', videoHref: '#' },
 ];
 
 const historyLessons = [
-  { num: 'T1 L1', title: 'L\'ESSOR DU CAPITALISME ET SES CONSEQUENCES', pdfHref: '#' },
-  { num: 'T1 L2', title: 'LES REVOLUTIONS INDUSTRIELLES', pdfHref: '#' },
-  { num: 'T2 L1', title: 'LE MOUVEMENT IMPERIALISTE ET LE CONGRES DE BERLIN', pdfHref: '#' },
-  { num: 'T2 L2', title: 'LES RESISTANCES AUX CONQUETES TERRITORIALES EN AFRIQUE: exemple de la CÔTE D\'IVOIRE', pdfHref: '#' },
-  { num: 'T2 L3', title: 'LA COLONISATION ET LES RESISTANCES EN CÔTE D\'IVOIRE', pdfHref: '#' },
-  { num: 'T3 L1', title: 'LA PREMIERE GUERRE MONDIALE: Causes et Conséquences', pdfHref: '#' },
-  { num: 'T3 L2', title: 'LA DEUXIEME GUERRE MONDIALE: Causes et Conséquences', pdfHref: '#' },
-  { num: 'T3 L3', title: 'LES VIOLENCES DE MASSE: les Génocides du XXè siècle à nos jours', pdfHref: '#' },
+  { num: 'T1 L1', title: 'L\'ESSOR DU CAPITALISME ET SES CONSEQUENCES', pdfHref: '#', videoHref: '#' },
+  { num: 'T1 L2', title: 'LES REVOLUTIONS INDUSTRIELLES', pdfHref: '#', videoHref: '#' },
+  { num: 'T2 L1', title: 'LE MOUVEMENT IMPERIALISTE ET LE CONGRES DE BERLIN', pdfHref: '#', videoHref: '#' },
+  { num: 'T2 L2', title: 'LES RESISTANCES AUX CONQUETES TERRITORIALES EN AFRIQUE: exemple de la CÔTE D\'IVOIRE', pdfHref: '#', videoHref: '#' },
+  { num: 'T2 L3', title: 'LA COLONISATION ET LES RESISTANCES EN CÔTE D\'IVOIRE', pdfHref: '#', videoHref: '#' },
+  { num: 'T3 L1', title: 'LA PREMIERE GUERRE MONDIALE: Causes et Conséquences', pdfHref: '#', videoHref: '#' },
+  { num: 'T3 L2', title: 'LA DEUXIEME GUERRE MONDIALE: Causes et Conséquences', pdfHref: '#', videoHref: '#' },
+  { num: 'T3 L3', title: 'LES VIOLENCES DE MASSE: les Génocides du XXè siècle à nos jours', pdfHref: '#', videoHref: '#' },
 ];
 
 export default function HistoireGeographiePremiereCPage() {

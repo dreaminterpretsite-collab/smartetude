@@ -27,9 +27,9 @@ function CourseTracker() {
 }
 
 const lessons = [
-    { num: 1, title: "L'impérialisme en Afrique", pdfHref: '#' },
-    { num: 2, title: "Les rivalités entre les puissances impérialistes en Afrique", pdfHref: 'https://drive.google.com/file/d/1XTVH9kZ-7V_O1Q7sQ6D4g9Y3gG2f2X5y/preview' },
-    { num: 3, title: "Le système colonial", pdfHref: 'https://drive.google.com/file/d/1XjR3l1rR9c8eJ0Z3tXj8Z9jG3f2qR2e5/preview' },
+    { num: 1, title: "L'impérialisme en Afrique", pdfHref: '#', videoHref: '#' },
+    { num: 2, title: "Les rivalités entre les puissances impérialistes en Afrique", pdfHref: 'https://drive.google.com/file/d/1XTVH9kZ-7V_O1Q7sQ6D4g9Y3gG2f2X5y/preview', videoHref: '#' },
+    { num: 3, title: "Le système colonial", pdfHref: 'https://drive.google.com/file/d/1XjR3l1rR9c8eJ0Z3tXj8Z9jG3f2qR2e5/preview', videoHref: '#' },
 ];
 
 export default function HistoireGeographiePremiereDPage() {
@@ -103,9 +103,9 @@ export default function HistoireGeographiePremiereDPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col space-y-2">
-               <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer('#', 'video') : handleLockedContent()}>
+               <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer(lesson.videoHref, 'video') : handleLockedContent()}>
                 <Video className="mr-2 h-4 w-4" />
-                Cours Vidéo (Bientôt)
+                Cours Vidéo
               </Button>
               <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer(lesson.pdfHref, 'pdf') : handleLockedContent()}>
                 <FileText className="mr-2 h-4 w-4" />
