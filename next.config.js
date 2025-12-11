@@ -8,8 +8,10 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
+  distDir: ".next",
   reactStrictMode: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
