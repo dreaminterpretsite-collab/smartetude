@@ -1,3 +1,4 @@
+'use server';
 
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/google-genai';
@@ -11,8 +12,8 @@ import {googleAI} from '@genkit-ai/google-genai';
 export const ai = genkit({
   plugins: [
     googleAI({
-      // Pass the API key directly. If it's undefined, Genkit will handle the error at runtime.
-      apiKey: process.env.GEMINI_API_KEY,
+      // Pass the API key directly. If it's undefined, provide a fallback to prevent build failure.
+      apiKey: process.env.GEMINI_API_KEY || '',
     }),
   ],
   model: 'googleai/gemini-2.5-flash',
