@@ -10,7 +10,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, Loader2, User, Bot } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getSupportChatResponse } from '@/ai/flows/get-support-chat-response';
 import { useAuth } from '@/context/AuthContext';
 
 type Message = {
@@ -50,14 +49,25 @@ export function ChatInterface() {
         form.reset();
 
         try {
-            const response = await getSupportChatResponse({
-                messages: currentMessages.slice(-6) // Keep context manageable
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ messages: currentMessages.slice(-6) }) // Keep context manageable
             });
-            const assistantMessage: Message = { role: 'assistant', content: response.response };
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "La réponse du support a échoué.");
+            }
+
+            const result = await response.json();
+            const assistantMessage: Message = { role: 'assistant', content: result.response };
             setMessages(prev => [...prev, assistantMessage]);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            const errorMessage: Message = { role: 'assistant', content: 'Désolé, une erreur est survenue. Veuillez réessayer.' };
+            const errorMessage: Message = { role: 'assistant', content: error.message || 'Désolé, une erreur est survenue. Veuillez réessayer.' };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setLoading(false);

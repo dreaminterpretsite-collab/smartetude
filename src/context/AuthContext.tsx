@@ -5,7 +5,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import type { AuthContextType, UserProfile } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { auth, firestore, isUserLoading } = useFirebase();
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let unsubscribeProfile: (() => void) | undefined;
     let unsubscribeAdmin: (() => void) | undefined;
   
-    if (user) {
+    if (user && firestore) {
       setLoading(true);
       const profileRef = doc(firestore, 'users', user.uid);
       unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {

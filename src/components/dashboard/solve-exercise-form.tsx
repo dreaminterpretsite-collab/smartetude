@@ -25,8 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { useFirebase } from '@/firebase';
-import { updateDoc, addDoc, collection } from 'firebase/firestore';
-import { solveExerciseFromPhoto } from '@/ai/flows/solve-exercise-from-photo';
+import { updateDoc, addDoc, collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 const EXERCISE_COST = 200;
@@ -157,17 +156,29 @@ export function SolveExerciseForm() {
         try {
             const photoDataUri = await fileToDataUrl(values.image[0]);
 
-            const aiResult = await solveExerciseFromPhoto({
+            const response = await fetch('/api/solve', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
                 photoDataUri,
                 subject: values.subject,
+              }),
             });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "La résolution de l'exercice a échoué.");
+            }
+
+            const aiResult = await response.json();
+
 
             if (!aiResult.solution) {
                 throw new Error("Notre système n'a pas pu générer de solution.");
             }
             
-            const { doc } = await import('firebase/firestore');
-
             const exerciseDocRef = await addDoc(collection(firestore, 'users', user.uid, 'exercises'), {
                 userProfileId: user.uid,
                 subject: values.subject,
