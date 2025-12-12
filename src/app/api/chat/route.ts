@@ -1,3 +1,5 @@
+'use server';
+
 import { getSupportChatResponse, type GetSupportChatResponseInput } from '@/ai/flows/get-support-chat-response';
 import { NextResponse } from 'next/server';
 

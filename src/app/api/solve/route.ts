@@ -1,3 +1,5 @@
+'use server';
+
 import { solveExerciseFromPhoto, type SolveExerciseFromPhotoInput } from '@/ai/flows/solve-exercise-from-photo';
 import { NextResponse } from 'next/server';
 
