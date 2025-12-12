@@ -64,10 +64,9 @@ export function SignupForm() {
         email: values.email,
         className: values.className,
         inscriptionDate: Date.now(),
-        solde: 0, // Solde initial à 0
+        solde: 1000,
         referralId: values.referralId || null,
         courseAccessExpires: null,
-        welcomeBonusPending: true, // Le bonus de bienvenue est en attente
       });
 
       // Here you would typically trigger a cloud function to credit the referrer
