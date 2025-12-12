@@ -1,0 +1,12 @@
+{
+  "name": "nextjs-server",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "next": "15.5.9",
+    "firebase-functions": "latest",
+    "firebase-admin": "latest"
+  }
+}

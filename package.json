@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "force-cache-bust": "echo 'Busting cache'"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.20.0",
@@ -45,7 +46,7 @@
     "firebase": "^11.9.1",
     "genkit": "^1.20.0",
     "lucide-react": "^0.475.0",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "next-pwa": "^5.6.0",
     "patch-package": "^8.0.0",
     "postcss": "^8",
@@ -63,7 +64,6 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "dotenv-cli": "^7.4.2",
     "genkit-cli": "^1.20.0",
     "typescript": "^5"
   }

@@ -27,7 +27,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/context/AuthContext';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import { signOut } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useTheme } from '../theme-provider';

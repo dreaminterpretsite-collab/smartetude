@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Construction, Lock } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import { trackCourseVisit, type CourseInfo } from '@/lib/course-visits';
 import { useToast } from '@/hooks/use-toast';
 

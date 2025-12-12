@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { trackCourseVisit, type CourseInfo } from '@/lib/course-visits';
 import { useToast } from '@/hooks/use-toast';
 import { ContentViewer } from '@/components/content-viewer';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 
 const courseInfo: CourseInfo = {
   id: 'physique-chimie-troisieme',
@@ -50,7 +50,7 @@ export default function PhysiqueChimieTroisiemePage() {
   const hasAccess = isAdmin || (userProfile && userProfile?.solde > 0 && userProfile?.className === 'troisieme');
 
   const handleLockedContent = () => {
-    if (!userProfile) return;
+    if (!userProfile || hasAccess) return;
     if (userProfile.solde <= 0) {
       toast({
         title: 'Contenu Verrouillé',

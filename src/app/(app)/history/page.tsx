@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import { useEffect, useState } from 'react';
 import { collection, query, onSnapshot, orderBy, doc, deleteDoc, writeBatch } from 'firebase/firestore';
 import type { Exercise } from '@/lib/types';

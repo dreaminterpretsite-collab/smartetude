@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-image",
-      "description": "Smiling African student looking at a tablet.",
-      "imageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhZnJpY2FuJTIwc3R1ZGVudCUyMGxhcHRvcHxlbnwwfHx8fDE3MjE4MzY3Mjl8MA&ixlib=rb-4.0.3&q=80&w=1080",
-      "imageHint": "student laptop"
+      "description": "Un groupe d'étudiants diversifiés dans une salle de classe, levant la main pour participer.",
+      "imageUrl": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwZXhhbXxlbnwwfHx8fDE3MjI1MjE4MjR8MA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "students classroom"
     },
     {
       "id": "feature-1",

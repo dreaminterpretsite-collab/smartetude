@@ -1,3 +1,4 @@
+// This comment is added to force a cache bust on Netlify.
 /** @type {import('next').NextConfig} */
 
 const withPWA = require('next-pwa')({

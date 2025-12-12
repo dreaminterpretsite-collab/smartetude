@@ -8,7 +8,7 @@ import { trackCourseVisit, type CourseInfo } from '@/lib/course-visits';
 import { useToast } from '@/hooks/use-toast';
 import { ContentViewer } from '@/components/content-viewer';
 import { Separator } from '@/components/ui/separator';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 
 const courseInfo: CourseInfo = {
   id: 'allemand-seconde-a',

@@ -27,18 +27,18 @@ function CourseTracker() {
 }
 
 const lessons = [
-    { num: 1, title: 'Les réflexes innés', pdfHref: 'https://drive.google.com/file/d/1p7Mp7dt9sOwkA90ey2nxc0QCAc82hzYC/preview' },
-    { num: 2, title: 'Les fonctions des gonades', pdfHref: 'https://drive.google.com/file/d/1IMY2MwSRZzh9Mk8xap36kqIV6GnLAEfh/preview' },
-    { num: 3, title: 'LA GAMETOGENESE', pdfHref: 'https://drive.google.com/file/d/12zoYaNCqFMI5ezLh5tfY94PQdEjtrsY-/preview' },
-    { num: 4, title: 'LA TRANSMISSION D\'UN CARACTERE HEREDITAIRE', pdfHref: 'https://drive.google.com/file/d/1DDnaTRUC2uSYBw2mP2Kls06fxBHCpr0N/preview' },
-    { num: 5, title: 'La synthèse des protéines', pdfHref: 'https://drive.google.com/file/d/11hz0-6IWdAWSFJ6w0qKn9AOe9J7kEFbn/preview' },
-    { num: 6, title: 'Les activités internes du globe terrestre', pdfHref: 'https://drive.google.com/file/d/1z5-novYZid9896zmkKMvJp12seswhLAA/preview' },
-    { num: 7, title: 'Les mouvements des plaques lithosphériques', pdfHref: '#' },
-    { num: 8, title: 'Les échanges d\'ions au niveau du sol', pdfHref: 'https://drive.google.com/file/d/1uMIYhjee5Aw3vAOkA7ws0Q97-dzkErKp/preview' },
-    { num: 9, title: 'L\'évolution des sols tropicaux', pdfHref: 'https://drive.google.com/file/d/1COitbq_ddwJAA4bc3vwz99YICEXoM_WA/preview' },
-    { num: 10, title: 'La production de matière organique', pdfHref: 'https://drive.google.com/file/d/1BL4YvAGReEHSjeEsll7kchP5P_HF8vYe/preview' },
-    { num: 11, title: 'LA DIGESTION DES ALIMENTS', pdfHref: 'https://drive.google.com/file/d/1RKPAveNaVxBuaYq2HAhwNT0Pz_psSn26/preview' },
-    { num: 12, title: 'L\'absorption des nutriments', pdfHref: 'https://drive.google.com/file/d/1nWt6PaK0Y9fcxWQDM7kGySKAtcRmbPsp/preview' },
+    { num: 1, title: 'Les réflexes innés', pdfHref: 'https://drive.google.com/file/d/1p7Mp7dt9sOwkA90ey2nxc0QCAc82hzYC/preview', videoHref: '#' },
+    { num: 2, title: 'Les fonctions des gonades', pdfHref: 'https://drive.google.com/file/d/1IMY2MwSRZzh9Mk8xap36kqIV6GnLAEfh/preview', videoHref: '#' },
+    { num: 3, title: 'LA GAMETOGENESE', pdfHref: 'https://drive.google.com/file/d/12zoYaNCqFMI5ezLh5tfY94PQdEjtrsY-/preview', videoHref: '#' },
+    { num: 4, title: 'LA TRANSMISSION D\'UN CARACTERE HEREDITAIRE', pdfHref: 'https://drive.google.com/file/d/1DDnaTRUC2uSYBw2mP2Kls06fxBHCpr0N/preview', videoHref: '#' },
+    { num: 5, title: 'La synthèse des protéines', pdfHref: 'https://drive.google.com/file/d/11hz0-6IWdAWSFJ6w0qKn9AOe9J7kEFbn/preview', videoHref: '#' },
+    { num: 6, title: 'Les activités internes du globe terrestre', pdfHref: 'https://drive.google.com/file/d/1z5-novYZid9896zmkKMvJp12seswhLAA/preview', videoHref: '#' },
+    { num: 7, title: 'Les mouvements des plaques lithosphériques', pdfHref: '#', videoHref: '#' },
+    { num: 8, title: 'Les échanges d\'ions au niveau du sol', pdfHref: 'https://drive.google.com/file/d/1uMIYhjee5Aw3vAOkA7ws0Q97-dzkErKp/preview', videoHref: '#' },
+    { num: 9, title: 'L\'évolution des sols tropicaux', pdfHref: 'https://drive.google.com/file/d/1COitbq_ddwJAA4bc3vwz99YICEXoM_WA/preview', videoHref: '#' },
+    { num: 10, title: 'La production de matière organique', pdfHref: 'https://drive.google.com/file/d/1BL4YvAGReEHSjeEsll7kchP5P_HF8vYe/preview', videoHref: '#' },
+    { num: 11, title: 'LA DIGESTION DES ALIMENTS', pdfHref: 'https://drive.google.com/file/d/1RKPAveNaVxBuaYq2HAhwNT0Pz_psSn26/preview', videoHref: '#' },
+    { num: 12, title: 'L\'absorption des nutriments', pdfHref: 'https://drive.google.com/file/d/1nWt6PaK0Y9fcxWQDM7kGySKAtcRmbPsp/preview', videoHref: '#' },
 ];
 
 export default function SvtPremiereDPage() {
@@ -111,7 +111,7 @@ export default function SvtPremiereDPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col space-y-2">
-              <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer('#', 'video') : handleLockedContent()}>
+              <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer(lesson.videoHref, 'video') : handleLockedContent()}>
                 <Video className="mr-2 h-4 w-4" />
                 Cours Vidéo
               </Button>

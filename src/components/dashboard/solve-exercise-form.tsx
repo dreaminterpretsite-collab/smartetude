@@ -24,7 +24,7 @@ import { Loader2, Camera, Upload, Video, RefreshCw, AlertTriangle } from 'lucide
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import { updateDoc, addDoc, collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 

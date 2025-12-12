@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { collection, query, where, onSnapshot, doc, writeBatch, getDocs, getDoc, increment, collectionGroup, Query, DocumentData } from 'firebase/firestore';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import type { Payment, UserProfile } from '@/lib/types';
 import {
   Table,

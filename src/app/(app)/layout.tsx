@@ -9,7 +9,7 @@ import {
   SidebarProvider,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

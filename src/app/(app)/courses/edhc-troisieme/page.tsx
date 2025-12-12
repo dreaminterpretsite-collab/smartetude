@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { trackCourseVisit, type CourseInfo } from '@/lib/course-visits';
 import { useToast } from '@/hooks/use-toast';
-import { useFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase/client-provider';
 import { ContentViewer } from '@/components/content-viewer';
 
 const courseInfo: CourseInfo = {

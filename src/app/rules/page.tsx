@@ -44,7 +44,7 @@ export default function RulesPage() {
 
           <h2 className="font-bold">4. Propriété Intellectuelle</h2>
           <p>
-            Les fiches de cours sont la propriété du MENA (Ministère de l'Éducation Nationale et de l'Alphabétisation) de Côte d'Ivoire et sont en open source. Nous les partageons gratuitement. Cependant, le contenu fourni par l'application, y compris les solutions générées, nous appartient.
+            Les fiches de cours sont la propriété du MENA (Ministère de l'Éducation Nationale et de l'Alphabétisation) de Côte d'Ivoire et sont distribuées gratuitement. Cependant, le contenu fourni par l'application, y compris les solutions générées, nous appartient.
           </p>
 
           <h2 className="font-bold">5. Sanctions</h2>

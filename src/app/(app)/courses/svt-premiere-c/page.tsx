@@ -27,14 +27,14 @@ function CourseTracker() {
 }
 
 const lessons = [
-    { num: 1, title: 'La structure interne du globe terrestre', pdfHref: 'https://drive.google.com/file/d/1XG-3Dw3yNWW7xCZ3Qi6BZoHMrHJcRMC7/preview' },
-    { num: 3, title: 'Les échanges d\'ions au niveau du sol', pdfHref: 'https://drive.google.com/file/d/1m1LDHo4nWOejkBuc872yPay6bVIJIQkf/preview' },
-    { num: 4, title: 'La gamétogénèse chez les mammifères', pdfHref: 'https://drive.google.com/file/d/1lErmiWBSZtMyeEdGLP-3Ng4IHenmHQgC/preview' },
-    { num: 5, title: 'La fécondation chez les mammifères', pdfHref: 'https://drive.google.com/file/d/18JhbuJ7OoUUOTyEVG7LrKWdmrNPfbfgS/preview' },
-    { num: 6, title: 'La synthèse des protéines', pdfHref: 'https://drive.google.com/file/d/1-U7h94ba68W5t3fX2o5feUmHVDLvvTDU/preview' },
-    { num: 7, title: 'La transmission d\'un caractère héréditaire', pdfHref: 'https://drive.google.com/file/d/1COrEV54O4Cswf3fouF-8uBy2iKI9BrZa/preview' },
-    { num: 8, title: 'La photosynthèse', pdfHref: 'https://drive.google.com/file/d/1sCG4Pf6FT2pkB-W1EWIzB5A1X_eTWwdV/preview' },
-    { num: 9, title: 'Ecosystème naturel et agrosystème', pdfHref: 'https://drive.google.com/file/d/1vOWvqdIgam3Wd388swKu1p3owL95DRTg/preview' },
+    { num: 1, title: 'La structure interne du globe terrestre', pdfHref: 'https://drive.google.com/file/d/1XG-3Dw3yNWW7xCZ3Qi6BZoHMrHJcRMC7/preview', videoHref: '#' },
+    { num: 3, title: 'Les échanges d\'ions au niveau du sol', pdfHref: 'https://drive.google.com/file/d/1m1LDHo4nWOejkBuc872yPay6bVIJIQkf/preview', videoHref: '#' },
+    { num: 4, title: 'La gamétogénèse chez les mammifères', pdfHref: 'https://drive.google.com/file/d/1lErmiWBSZtMyeEdGLP-3Ng4IHenmHQgC/preview', videoHref: '#' },
+    { num: 5, title: 'La fécondation chez les mammifères', pdfHref: 'https://drive.google.com/file/d/18JhbuJ7OoUUOTyEVG7LrKWdmrNPfbfgS/preview', videoHref: '#' },
+    { num: 6, title: 'La synthèse des protéines', pdfHref: 'https://drive.google.com/file/d/1-U7h94ba68W5t3fX2o5feUmHVDLvvTDU/preview', videoHref: '#' },
+    { num: 7, title: 'La transmission d\'un caractère héréditaire', pdfHref: 'https://drive.google.com/file/d/1COrEV54O4Cswf3fouF-8uBy2iKI9BrZa/preview', videoHref: '#' },
+    { num: 8, title: 'La photosynthèse', pdfHref: 'https://drive.google.com/file/d/1sCG4Pf6FT2pkB-W1EWIzB5A1X_eTWwdV/preview', videoHref: '#' },
+    { num: 9, title: 'Ecosystème naturel et agrosystème', pdfHref: 'https://drive.google.com/file/d/1vOWvqdIgam3Wd388swKu1p3owL95DRTg/preview', videoHref: '#' },
 ];
 
 export default function SvtPremiereCPage() {
@@ -107,7 +107,7 @@ export default function SvtPremiereCPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col space-y-2">
-              <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer('#', 'video') : handleLockedContent()}>
+              <Button variant="outline" disabled={!hasAccess} onClick={() => hasAccess ? openViewer(lesson.videoHref, 'video') : handleLockedContent()}>
                 <Video className="mr-2 h-4 w-4" />
                 Cours Vidéo
               </Button>
