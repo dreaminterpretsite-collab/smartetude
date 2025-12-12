@@ -1,53 +1,22 @@
 'use client';
 
-import { initializeApp, getApps, getApp, FirebaseApp, FirebaseOptions } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+// This file serves as the main entry point for Firebase-related functionality.
+// It re-exports the necessary providers, hooks, and utilities to be used
+// throughout the application, ensuring a consistent and centralized way to
+// access Firebase services.
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
-export function initializeFirebase() {
-  // This configuration is now built at RUNTIME on the client,
-  // preventing API keys from being baked into the build artifacts.
-  const firebaseConfig: FirebaseOptions = {
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-  };
-
-  // This check prevents re-initializing the app on every render.
-  if (!getApps().length) {
-    // If running in a real Firebase Hosting environment, initializeApp() is parameterless.
-    // In all other environments (like local dev or Netlify), we fall back to the config object.
-    try {
-      // This will fail in dev environment because of how Netlify injects variables,
-      // which is fine. We fall back to the config object.
-      return getSdks(initializeApp());
-    } catch (e) {
-      return getSdks(initializeApp(firebaseConfig));
-    }
-  }
-
-  // If already initialized, return the SDKs with the existing app instance.
-  return getSdks(getApp());
-}
-
-export function getSdks(firebaseApp: FirebaseApp) {
-  return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
-  };
-}
-
-export * from './provider';
+// The FirebaseClientProvider is the core provider that initializes Firebase
+// for the client-side of the application. It should wrap the root of the app.
 export * from './client-provider';
+
+
+// These hooks provide real-time data fetching from Firestore.
+// They are designed to be used in client components to subscribe to
+// document or collection changes.
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
+
+// These utilities provide a non-blocking way to perform Firestore write
+// operations. They are useful for 'fire-and-forget' updates where you
+// don't need to wait for the operation to complete on the client.
 export * from './non-blocking-updates';
-export * from './non-blocking-login';
-export * from './errors';
-export * from './error-emitter';
