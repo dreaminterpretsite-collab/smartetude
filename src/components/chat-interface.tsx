@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, Loader2, User, Bot } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/context/AuthContext';
+import { getSupportChatResponse } from '@/ai/flows/get-support-chat-response';
 
 type Message = {
     role: 'user' | 'assistant';
@@ -49,20 +50,12 @@ export function ChatInterface() {
         form.reset();
 
         try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ messages: currentMessages.slice(-6) }) // Keep context manageable
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "La réponse du support a échoué.");
+            const result = await getSupportChatResponse({ messages: currentMessages.slice(-6) }); // Keep context manageable
+            
+            if (!result.response) {
+                throw new Error("La réponse du support a échoué.");
             }
 
-            const result = await response.json();
             const assistantMessage: Message = { role: 'assistant', content: result.response };
             setMessages(prev => [...prev, assistantMessage]);
         } catch (error: any) {

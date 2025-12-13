@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import cuid from 'cuid';
+import { createId } from '@paralleldrive/cuid2';
 
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { useFirebase } from '@/firebase/client-provider';
-import { updateDoc, addDoc, collection, doc } from 'firebase/firestore';
+import { updateDoc, addDoc, collection, doc, increment } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { solveExerciseFromPhoto } from '@/ai/flows/solve-exercise-from-photo';
 
 const EXERCISE_COST = 200;
 
@@ -130,7 +131,7 @@ export function SolveExerciseForm() {
 
             canvas.toBlob(blob => {
                 if (blob) {
-                    const file = new File([blob], `${cuid()}.jpg`, { type: 'image/jpeg' });
+                    const file = new File([blob], `${createId()}.jpg`, { type: 'image/jpeg' });
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     form.setValue('image', dataTransfer.files, { shouldValidate: true });
@@ -156,24 +157,10 @@ export function SolveExerciseForm() {
         try {
             const photoDataUri = await fileToDataUrl(values.image[0]);
 
-            const response = await fetch('/api/solve', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                photoDataUri,
-                subject: values.subject,
-              }),
+            const aiResult = await solveExerciseFromPhoto({
+              photoDataUri,
+              subject: values.subject,
             });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || "La résolution de l'exercice a échoué.");
-            }
-
-            const aiResult = await response.json();
-
 
             if (!aiResult.solution) {
                 throw new Error("Notre système n'a pas pu générer de solution.");
@@ -189,7 +176,7 @@ export function SolveExerciseForm() {
 
             const userDocRef = doc(firestore, 'users', user.uid);
             await updateDoc(userDocRef, {
-                solde: userProfile.solde - EXERCISE_COST,
+                solde: increment(-EXERCISE_COST),
             });
             
             toast({ title: 'Succès!', description: 'Solution générée. Redirection...' });
