@@ -211,7 +211,7 @@ export function SolveExerciseForm() {
                                     <FormControl>
                                         <div className={`relative flex justify-center w-full h-64 border-2 border-dashed rounded-lg group transition-colors ${fieldState.error ? 'border-destructive' : 'border-input'}`}>
                                             {preview ? (
-                                                <Image src={preview} alt="Aperçu" fill objectFit="contain" className="rounded-lg p-2" />
+                                                <Image src={preview} alt="Aperçu" fill className="object-contain rounded-lg p-2" />
                                             ) : (
                                                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                                                     <Camera className="w-12 h-12 mb-2"/>
@@ -246,7 +246,7 @@ export function SolveExerciseForm() {
                                     </Alert>
                                 )}
                                 {preview && (
-                                    <Image src={preview} alt="Aperçu de la capture" fill objectFit="contain" className="p-1"/>
+                                    <Image src={preview} alt="Aperçu de la capture" fill className="object-contain p-1"/>
                                 )}
                             </div>
                             <div className="flex gap-2">
