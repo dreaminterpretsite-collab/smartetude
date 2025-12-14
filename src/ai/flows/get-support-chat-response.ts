@@ -72,11 +72,12 @@ export const getSupportChatResponseFlow = ai.defineFlow(
     outputSchema: GetSupportChatResponseOutputSchema,
   },
   async (input) => {
-    // ✅ Genkit ExecutablePrompt is callable
     const result = await prompt(input);
 
     return {
-      response: result.response ?? "Désolé, je n'ai pas pu générer de réponse.",
+      response:
+        result.output?.response ??
+        "Désolé, je n'ai pas pu générer de réponse.",
     };
   },
 );
