@@ -11,7 +11,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, Loader2, User, Bot } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/context/AuthContext';
-import { getSupportChatResponse } from '@/ai/flows/get-support-chat-response';
 
 type Message = {
     role: 'user' | 'assistant';
