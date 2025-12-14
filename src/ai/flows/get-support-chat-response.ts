@@ -12,7 +12,6 @@ const MessageSchema = z.object({
   content: z.string(),
 });
 
-// ✅ Export pour pouvoir importer dans route.ts
 export const GetSupportChatResponseInputSchema = z.object({
   messages: z.array(MessageSchema),
 });
@@ -73,20 +72,16 @@ export const getSupportChatResponseFlow = ai.defineFlow(
     outputSchema: GetSupportChatResponseOutputSchema,
   },
   async (input) => {
-    // prompt(input) retourne directement { response }
-    const output = await prompt(input);
+    const result = await prompt.run(input);
 
     return {
-      response: output?.response ?? "Désolé, je n'ai pas pu générer de réponse.",
+      response: result.response ?? "Désolé, je n'ai pas pu générer de réponse.",
     };
   },
 );
 
 /* ----------------------------- Public API ----------------------------- */
-/**
- * ONLY called from /api/chat
- * NEVER import this in a client component
- */
+
 export async function getSupportChatResponse(
   input: GetSupportChatResponseInput,
 ): Promise<GetSupportChatResponseOutput> {
