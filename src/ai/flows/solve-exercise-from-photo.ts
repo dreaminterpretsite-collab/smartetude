@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview Genkit flow to solve exercises from a photo
  */
