@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview AI chatbot for Smart Études CI support
  */
