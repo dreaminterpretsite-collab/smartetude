@@ -72,7 +72,8 @@ export const getSupportChatResponseFlow = ai.defineFlow(
     outputSchema: GetSupportChatResponseOutputSchema,
   },
   async (input) => {
-    const result = await prompt.run(input);
+    // ✅ FIX: run() → execute()
+    const result = await prompt.execute(input);
 
     return {
       response: result.response ?? "Désolé, je n'ai pas pu générer de réponse.",
