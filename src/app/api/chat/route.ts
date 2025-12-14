@@ -1,38 +1,25 @@
-// src/app/api/chat/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { getSupportChatResponse, GetSupportChatResponseInputSchema } from '@/ai/flows/get-support-chat-response';
+import {
+  getSupportChatResponse,
+  GetSupportChatResponseInputSchema,
+} from '@/ai/flows/get-support-chat-response';
+import { z } from 'genkit';
 
-/**
- * API Route for Smart Études CI support chat
- * Only server-side, must be async
- */
-export const POST = async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
   try {
-    // Parse and validate the request body
-    const body = await req.json();
+    const json = await req.json();
 
-    const parsed = GetSupportChatResponseInputSchema.parse(body);
+    // Validation du body
+    const input = GetSupportChatResponseInputSchema.parse(json);
 
-    // Run the chat response flow
-    const response = await getSupportChatResponse(parsed);
+    const response = await getSupportChatResponse(input);
 
-    return NextResponse.json(response, { status: 200 });
-  } catch (err: any) {
-    console.error('[API CHAT ERROR]', err);
-
-    // Handle validation errors
-    if (err instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request format', details: err.errors },
-        { status: 400 }
-      );
-    }
-
-    // Generic server error
+    return NextResponse.json(response);
+  } catch (error: any) {
+    console.error('API chat error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { response: 'Une erreur est survenue. Veuillez réessayer.' },
+      { status: 500 },
     );
   }
-};
+}
