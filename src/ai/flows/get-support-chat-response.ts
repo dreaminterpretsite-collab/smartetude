@@ -1,12 +1,8 @@
-/**
- * @fileOverview AI chatbot for Smart Études CI support
- */
-
+// src/ai/flows/get-support-chat-response.ts
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 /* ----------------------------- Schemas ----------------------------- */
-
 const MessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string(),
@@ -29,12 +25,12 @@ export type GetSupportChatResponseOutput = z.infer<
 >;
 
 /* ----------------------------- Prompt ----------------------------- */
-
-const prompt = ai.definePrompt({
-  name: 'getSupportChatResponsePrompt',
-  input: { schema: GetSupportChatResponseInputSchema },
-  output: { schema: GetSupportChatResponseOutputSchema },
-  prompt: `
+function createPrompt() {
+  return ai.definePrompt({
+    name: 'getSupportChatResponsePrompt',
+    input: { schema: GetSupportChatResponseInputSchema },
+    output: { schema: GetSupportChatResponseOutputSchema },
+    prompt: `
 You are Clara, a friendly and professional support assistant for Smart Études CI.
 
 RULES:
@@ -60,35 +56,33 @@ Conversation:
 {{/each}}
 
 Assistant (Clara):
-`,
-});
+    `,
+  });
+}
 
 /* ----------------------------- Flow ----------------------------- */
+async function runGetSupportChatResponseFlow(
+  input: GetSupportChatResponseInput
+): Promise<GetSupportChatResponseOutput> {
+  const prompt = createPrompt();
 
-const getSupportChatResponseFlow = ai.defineFlow(
-  {
-    name: 'getSupportChatResponseFlow',
-    inputSchema: GetSupportChatResponseInputSchema,
-    outputSchema: GetSupportChatResponseOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
+  const { output } = await ai.defineFlow(
+    {
+      name: 'getSupportChatResponseFlow',
+      inputSchema: GetSupportChatResponseInputSchema,
+      outputSchema: GetSupportChatResponseOutputSchema,
+    },
+    async (input) => prompt(input)
+  )(input);
 
-    return {
-      response:
-        output?.response ??
-        "Désolé, je n'ai pas pu générer de réponse.",
-    };
-  },
-);
+  return {
+    response: output?.response ?? "Désolé, je n'ai pas pu générer de réponse.",
+  };
+}
 
 /* ----------------------------- Public API ----------------------------- */
-/**
- * ONLY called from /api/chat
- * NEVER import this in a client component
- */
 export async function getSupportChatResponse(
-  input: GetSupportChatResponseInput,
+  input: GetSupportChatResponseInput
 ): Promise<GetSupportChatResponseOutput> {
-  return getSupportChatResponseFlow(input);
+  return runGetSupportChatResponseFlow(input);
 }
