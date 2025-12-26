@@ -50,7 +50,6 @@ import {
   increment,
 } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { solveExerciseFromPhoto } from '@/ai/flows/solve-exercise-from-photo';
 
 const EXERCISE_COST = 200;
 
@@ -62,10 +61,7 @@ const formSchema = z.object({
   }),
   image: z
     .custom<FileList>()
-    .refine(
-      (files) => files?.length === 1,
-      'Veuillez sélectionner une image.',
-    )
+    .refine((files) => files?.length === 1, 'Veuillez sélectionner une image.')
     .refine(
       (files) => files?.[0]?.type.startsWith('image/'),
       'Seuls les fichiers image sont autorisés.',
@@ -140,7 +136,6 @@ export function SolveExerciseForm() {
     };
 
     getCameraPermission();
-
     return () => stopCamera();
   }, [activeTab, toast]);
 
@@ -154,9 +149,7 @@ export function SolveExerciseForm() {
 
   /* -------------------------- Handlers -------------------------- */
 
-  const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -187,8 +180,7 @@ export function SolveExerciseForm() {
     canvas.toBlob((blob) => {
       if (!blob) return;
 
-      const id = crypto.randomUUID();
-      const file = new File([blob], `${id}.jpg`, {
+      const file = new File([blob], `capture.jpg`, {
         type: 'image/jpeg',
       });
 
@@ -226,15 +218,23 @@ export function SolveExerciseForm() {
     try {
       const photoDataUri = await fileToDataUrl(values.image[0]);
 
-      const aiResult = await solveExerciseFromPhoto({
-        photoDataUri,
-        subject: values.subject,
+      const res = await fetch('/api/solve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          photoDataUri,
+          subject: values.subject,
+        }),
       });
 
+      if (!res.ok) {
+        throw new Error('Erreur lors de la génération de la solution');
+      }
+
+      const aiResult: { solution: string } = await res.json();
+
       if (!aiResult.solution) {
-        throw new Error(
-          "Notre système n'a pas pu générer de solution.",
-        );
+        throw new Error("Aucune solution générée.");
       }
 
       const exerciseDocRef = await addDoc(
@@ -281,10 +281,7 @@ export function SolveExerciseForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Tabs
           value={activeTab}
           onValueChange={(v) =>
@@ -302,7 +299,6 @@ export function SolveExerciseForm() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Upload */}
           <TabsContent value="upload">
             <FormField
               control={form.control}
@@ -346,7 +342,6 @@ export function SolveExerciseForm() {
             />
           </TabsContent>
 
-          {/* Camera */}
           <TabsContent value="camera">
             <div className="space-y-4">
               <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
@@ -408,7 +403,6 @@ export function SolveExerciseForm() {
           </TabsContent>
         </Tabs>
 
-        {/* Subject */}
         <FormField
           control={form.control}
           name="subject"

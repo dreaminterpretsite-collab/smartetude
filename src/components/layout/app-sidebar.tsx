@@ -10,11 +10,9 @@ import {
   History,
   LayoutDashboard,
   LogOut,
-  Shield,
   User,
-  Home,
+  CalendarClock,
   Briefcase,
-  CalendarClock
 } from 'lucide-react';
 import {
   Sidebar,
@@ -27,10 +25,9 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/context/AuthContext';
-import { useFirebase } from '@/firebase/client-provider';
 import { signOut } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useTheme } from '../theme-provider';
+
 
 const menuItems = [
   { href: '/dashboard', label: 'Tableau de Bord', icon: LayoutDashboard },
@@ -54,8 +51,7 @@ const getInitials = (name: string | undefined) => {
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { userProfile, isAdmin } = useAuth();
-  const { auth } = useFirebase();
+  const { userProfile, isAdmin, auth } = useAuth();
 
   const handleLogout = async () => {
     if(!auth) return;

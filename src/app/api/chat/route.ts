@@ -1,16 +1,23 @@
-'use server';
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  getSupportChatResponse,
+  GetSupportChatResponseInputSchema,
+} from '@/ai/flows/get-support-chat-response';
 
-import { getSupportChatResponse, type GetSupportChatResponseInput } from '@/ai/flows/get-support-chat-response';
-import { NextResponse } from 'next/server';
-
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json() as GetSupportChatResponseInput;
-    // The API route now directly calls the server-side flow
-    const result = await getSupportChatResponse(body);
-    return NextResponse.json(result);
-  } catch (e: any) {
-    console.error(e);
-    return NextResponse.json({ error: e.message || 'An unexpected error occurred.' }, { status: 500 });
+    const json = await req.json();
+
+    const input = GetSupportChatResponseInputSchema.parse(json);
+
+    const response = await getSupportChatResponse(input);
+
+    return NextResponse.json(response);
+  } catch (error: any) {
+    console.error('API chat error:', error);
+    return NextResponse.json(
+      { response: 'Une erreur est survenue. Veuillez réessayer.' },
+      { status: 500 },
+    );
   }
 }
