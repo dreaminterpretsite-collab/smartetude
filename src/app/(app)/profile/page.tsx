@@ -6,8 +6,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Copy, Gift } from 'lucide-react';
+import { Copy, Gift, PiggyBank, CircleAlert, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
+
+const profileFormSchema = z.object({
+  className: z.enum(['troisieme', 'seconde', 'premiere', 'terminale']),
+});
 
 const getInitials = (name: string | undefined) => {
     if (!name) return '..';
@@ -17,17 +42,30 @@ const getInitials = (name: string | undefined) => {
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  };
+};
 
 const capitalize = (s: string | undefined) => {
     if(!s) return '';
     return s.charAt(0).toUpperCase() + s.slice(1);
-}
+};
+
+const MIN_WITHDRAWAL_AMOUNT = 10000;
 
 export default function ProfilePage() {
-    const { userProfile, user } = useAuth();
+    const { userProfile, user, firestore } = useAuth();
     const { toast } = useToast();
-    
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
+    const form = useForm<z.infer<typeof profileFormSchema>>({
+        resolver: zodResolver(profileFormSchema),
+        defaultValues: {
+            className: userProfile?.className || 'troisieme',
+        }
+    });
+
+    const {formState: {isSubmitting}} = form;
+
     const formatCurrency = (amount: number | null | undefined) => {
         if (amount === undefined || amount === null) return '...';
         return new Intl.NumberFormat('fr-CI', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(amount);
@@ -36,7 +74,57 @@ export default function ProfilePage() {
     const copyToClipboard = () => {
         if (!user) return;
         navigator.clipboard.writeText(user.uid);
-        toast({ title: 'Copié !', description: 'Le lien de parrainage a été copié dans le presse-papiers.' });
+        toast({ title: 'Copié !', description: 'Le code de parrainage a été copié dans le presse-papiers.' });
+    };
+
+    const handleWithdrawal = async () => {
+        if (!user || !userProfile || !userProfile.referralBalance || userProfile.referralBalance < MIN_WITHDRAWAL_AMOUNT || !firestore) {
+          toast({
+            variant: 'destructive',
+            title: 'Action impossible',
+            description: `Le montant minimum pour un retrait est de ${formatCurrency(MIN_WITHDRAWAL_AMOUNT)}.`,
+          });
+          return;
+        }
+        setIsWithdrawing(true);
+        try {
+          await addDoc(collection(firestore, 'withdrawalRequests'), {
+            userId: user.uid,
+            userEmail: userProfile.email,
+            userName: userProfile.name,
+            amount: userProfile.referralBalance,
+            status: 'pending',
+            requestDate: Date.now(),
+          });
+          toast({
+            title: 'Demande envoyée',
+            description: 'Votre demande de retrait a été envoyée et sera traitée par un administrateur.',
+          });
+        } catch (error) {
+          console.error('Erreur lors de la demande de retrait:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Erreur',
+            description: 'Une erreur est survenue lors de l\'envoi de votre demande. Veuillez réessayer.',
+          });
+        } finally {
+          setIsWithdrawing(false);
+        }
+    };
+    
+    const onProfileUpdate = async (values: z.infer<typeof profileFormSchema>) => {
+        if (!user || !firestore) return;
+        try {
+            const userRef = doc(firestore, 'users', user.uid);
+            await updateDoc(userRef, {
+                className: values.className
+            });
+            toast({ title: 'Succès', description: 'Votre classe a été mise à jour.' });
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de mettre à jour votre profil.' });
+        }
     };
 
     if (!userProfile || !user) {
@@ -65,11 +153,9 @@ export default function ProfilePage() {
     const profileItems = [
         { label: "Nom Complet", value: userProfile.name },
         { label: "Adresse Email", value: userProfile.email },
-        { label: "Classe", value: capitalize(userProfile.className) },
         { label: "Membre Depuis", value: new Date(userProfile.inscriptionDate).toLocaleDateString('fr-FR') },
         { label: "Solde Actuel", value: formatCurrency(userProfile.solde) },
     ];
-
 
     return (
         <div className="space-y-6">
@@ -77,7 +163,7 @@ export default function ProfilePage() {
             <Card className="max-w-2xl">
                 <CardHeader className="text-center items-center space-y-4">
                     <Avatar className="h-24 w-24 text-3xl border-2 border-primary">
-                        <AvatarImage src={user?.photoURL || ''} />
+                        <AvatarImage src={userProfile?.photoURL || ''} />
                         <AvatarFallback>{getInitials(userProfile?.name)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -93,30 +179,37 @@ export default function ProfilePage() {
                                 <p className="font-semibold">{item.value}</p>
                             </div>
                         ))}
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="max-w-2xl">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Gift className="h-6 w-6 text-accent"/>
-                        Programme de Parrainage
-                    </CardTitle>
-                    <CardDescription>
-                        Partagez votre code de parrainage avec vos amis. Quand ils s'inscrivent, vous recevrez tous les deux un bonus de 1,000 FCFA !
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex gap-2">
-                        <Input value={user.uid} readOnly className="font-mono bg-muted"/>
-                        <Button onClick={copyToClipboard} variant="outline" size="icon">
-                            <Copy className="h-4 w-4" />
-                            <span className="sr-only">Copier le code</span>
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    );
-}
+                         <div className="p-4 bg-muted/50 rounded-lg sm:col-span-2">
+                             <div className="flex justify-between items-center">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Classe</p>
+                                    <p className="font-semibold">{capitalize(userProfile.className)}</p>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setIsEditing(!isEditing)}>
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                             </div>
+                             {isEditing && (
+                                <Form {...form}>
+                                    <form onSubmit={form.handleSubmit(onProfileUpdate)} className="mt-4 space-y-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="className"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Mettre à jour la classe</FormLabel>
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Sélectionnez votre classe" />
+                                                        </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="troisieme">Troisième</SelectItem>
+                                                            <SelectItem value="seconde">Seconde</SelectItem>
+                                                            <SelectItem value="premiere">Première</SelectItem>
+                                                            <SelectItem value="terminale">Terminale</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem
