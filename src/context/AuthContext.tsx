@@ -1,107 +1,190 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User as FirebaseUser } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
+
+import type { User as FirebaseUser, Auth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  doc,
+  onSnapshot,
+  Firestore,
+  getFirestore,
+} from 'firebase/firestore';
+
+import { FirebaseApp, getApps, initializeApp } from 'firebase/app';
+
 import type { AuthContextType, UserProfile } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { useFirebase } from '@/firebase/client-provider';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  userProfile: null,
-  loading: true,
-  isAdmin: false,
-  hasCourseAccess: false,
-});
+/* ------------------------------------------------------------------ */
+/* Firebase configuration (via Render environment variables) */
+/* ------------------------------------------------------------------ */
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+};
+
+/* ------------------------------------------------------------------ */
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { auth, firestore, isUserLoading } = useFirebase();
-  const user = auth?.currentUser;
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<{
+    app: FirebaseApp;
+    auth: Auth;
+    firestore: Firestore;
+  } | null>(null);
 
-  const hasCourseAccess = !!(userProfile?.courseAccessExpires && userProfile.courseAccessExpires > Date.now());
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  /* ------------------------------------------------------------------ */
+  /* Initialize Firebase (client only) */
+  /* ------------------------------------------------------------------ */
 
   useEffect(() => {
-    if (isUserLoading) return;
+    if (typeof window === 'undefined') return;
 
-    let unsubscribeProfile: (() => void) | undefined;
-    let unsubscribeAdmin: (() => void) | undefined;
-  
-    if (user && firestore) {
-      setLoading(true);
-      const profileRef = doc(firestore, 'users', user.uid);
-      unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {
-        if (docSnap.exists()) {
-          setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
-        } else {
-          setUserProfile(null);
-        }
-        // setLoading(false) is handled in the admin snapshot
+    const app =
+      getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+
+    const auth = getAuth(app);
+    const firestore = getFirestore(app);
+
+    setServices({ app, auth, firestore });
+  }, []);
+
+  /* ------------------------------------------------------------------ */
+  /* Auth state listener */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
+    if (!services) return;
+
+    const unsubscribe = onAuthStateChanged(services.auth, (firebaseUser) => {
+      setUser(firebaseUser);
+
+      if (!firebaseUser) {
+        setUserProfile(null);
+        setIsAdmin(false);
+        setIsLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [services]);
+
+  /* ------------------------------------------------------------------ */
+  /* User profile & admin role */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
+    if (!services || !user) {
+      if (!user) setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+
+    const profileRef = doc(services.firestore, 'users', user.uid);
+    const adminRef = doc(services.firestore, 'roles_admin', user.uid);
+
+    const unsubscribeProfile = onSnapshot(
+      profileRef,
+      (docSnap) => {
+        setUserProfile(
+          docSnap.exists()
+            ? ({ id: docSnap.id, ...docSnap.data() } as UserProfile)
+            : null
+        );
+        setIsLoading(false);
       },
       (error) => {
-        const permissionError = new FirestorePermissionError({
+        console.error('Profile error:', error);
+        setIsLoading(false);
+        errorEmitter.emit(
+          'permission-error',
+          new FirestorePermissionError({
             path: profileRef.path,
             operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setUserProfile(null);
-        setLoading(false);
-      });
-  
-      const adminRef = doc(firestore, 'roles_admin', user.uid);
-      unsubscribeAdmin = onSnapshot(adminRef, (docSnap) => {
-        setIsAdmin(docSnap.exists());
-        setLoading(false);
-      },
-      (error) => {
-        const permissionError = new FirestorePermissionError({
-            path: adminRef.path,
-            operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setIsAdmin(false);
-        setLoading(false);
-      });
-    } else {
-      setUserProfile(null);
-      setIsAdmin(false);
-      setLoading(false);
-    }
-  
-    return () => {
-      if (unsubscribeProfile) unsubscribeProfile();
-      if (unsubscribeAdmin) unsubscribeAdmin();
-    };
-  }, [user, firestore, isUserLoading]);
-
-  const value = { user, userProfile, loading, isAdmin, hasCourseAccess };
-
-  if (loading || isUserLoading) {
-    return (
-        <div className="w-screen h-screen flex items-center justify-center bg-background">
-            <div className="flex flex-col items-center space-y-4">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className='text-muted-foreground'>Chargement de votre session...</p>
-            </div>
-        </div>
+          })
+        );
+      }
     );
-  }
+
+    const unsubscribeAdmin = onSnapshot(
+      adminRef,
+      (docSnap) => {
+        setIsAdmin(docSnap.exists());
+      },
+      () => {
+        setIsAdmin(false);
+      }
+    );
+
+    return () => {
+      unsubscribeProfile();
+      unsubscribeAdmin();
+    };
+  }, [user, services]);
+
+  /* ------------------------------------------------------------------ */
+
+  const hasCourseAccess =
+    !!userProfile?.courseAccessExpires &&
+    userProfile.courseAccessExpires > Date.now();
+
+  const value: AuthContextType = {
+    firebaseApp: services?.app || null,
+    auth: services?.auth || null,
+    firestore: services?.firestore || null,
+    user,
+    userProfile,
+    loading: isLoading,
+    isAdmin,
+    hasCourseAccess,
+  };
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      <FirebaseErrorListener />
+      {isLoading ? (
+        <div className="w-screen h-screen flex items-center justify-center bg-background">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-muted-foreground">
+              Chargement de votre session...
+            </p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
 
+/* ------------------------------------------------------------------ */
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
