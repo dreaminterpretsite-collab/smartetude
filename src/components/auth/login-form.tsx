@@ -23,30 +23,17 @@ import { useAuth } from '@/context/AuthContext';
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  AuthError,
 } from 'firebase/auth';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
 
 const formSchema = z.object({
-  email: z.string().email({
-    message: 'Veuillez entrer une adresse email valide.',
-  }),
-  password: z.string().min(1, {
-    message: 'Veuillez entrer votre mot de passe.',
-  }),
+  email: z.string().email({ message: 'Veuillez entrer une adresse email valide.' }),
+  password: z.string().min(1, { message: 'Veuillez entrer votre mot de passe.' }),
 });
 
 const GoogleIcon = () => (
-  <svg
-    className="h-5 w-5 mr-2"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
+  <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
     <path
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       fill="#4285F4"
@@ -68,7 +55,7 @@ const GoogleIcon = () => (
 
 export function LoginForm() {
   const router = useRouter();
-  const { auth, firestore } = useAuth();
+  const { auth } = useAuth();
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -87,16 +74,29 @@ export function LoginForm() {
     setError(null);
 
     try {
-      if (!auth) throw new Error('Auth non initialisé');
-      await signInWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
+      if (!auth) throw new Error('Firebase Auth non initialisé');
+
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push('/dashboard');
-    } catch (err) {
-      console.error(err);
-      setError('Email ou mot de passe incorrect.');
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof AuthError) {
+        switch (e.code) {
+          case 'auth/invalid-credential':
+          case 'auth/wrong-password':
+          case 'auth/user-not-found':
+            setError('Email ou mot de passe incorrect.');
+            break;
+          case 'auth/too-many-requests':
+            setError('Trop de tentatives. Réessayez plus tard.');
+            break;
+          default:
+            setError('Erreur lors de la connexion. Veuillez réessayer.');
+        }
+      } else {
+        setError('Erreur inattendue. Veuillez réessayer.');
+      }
     } finally {
       setLoading(false);
     }
@@ -107,40 +107,14 @@ export function LoginForm() {
     setError(null);
 
     try {
-      if (!auth || !firestore)
-        throw new Error('Firebase non initialisé');
+      if (!auth) throw new Error('Firebase Auth non initialisé');
 
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userRef = doc(firestore, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          id: user.uid,
-          name: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          className: 'troisieme', // valeur par défaut
-          inscriptionDate: serverTimestamp(),
-          solde: 0,
-          referralId: null,
-          referralBalance: 0,
-          courseAccessExpires: null,
-          welcomeBonusPending: true,
-          upline: [],
-        });
-      }
-
-      router.push('/dashboard');
-    } catch (err) {
-      console.error(err);
-      setError(
-        "La connexion avec Google a échoué. Veuillez réessayer."
-      );
-    } finally {
+      await signInWithRedirect(auth, provider);
+      // La redirection est gérée par AuthProvider (getRedirectResult)
+    } catch (e) {
+      console.error(e);
+      setError('La connexion avec Google a échoué.');
       setGoogleLoading(false);
     }
   }
@@ -148,14 +122,11 @@ export function LoginForm() {
   return (
     <div className="space-y-4">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {error && (
             <Alert variant="destructive">
               <Terminal className="h-4 w-4" />
-              <AlertTitle>Erreur</AlertTitle>
+              <AlertTitle>Erreur de connexion</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -167,11 +138,7 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="m@example.com"
-                    {...field}
-                  />
+                  <Input type="email" placeholder="m@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -192,14 +159,8 @@ export function LoginForm() {
             )}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading || googleLoading}
-          >
-            {loading && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+          <Button type="submit" className="w-full" disabled={loading || googleLoading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading ? 'Connexion...' : 'Se connecter'}
           </Button>
         </form>
@@ -210,9 +171,7 @@ export function LoginForm() {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            OU
-          </span>
+          <span className="bg-background px-2 text-muted-foreground">OU</span>
         </div>
       </div>
 
@@ -227,9 +186,7 @@ export function LoginForm() {
         ) : (
           <GoogleIcon />
         )}
-        {googleLoading
-          ? 'Connexion en cours...'
-          : 'Se connecter avec Google'}
+        {googleLoading ? 'Connexion en cours...' : 'Se connecter avec Google'}
       </Button>
     </div>
   );
