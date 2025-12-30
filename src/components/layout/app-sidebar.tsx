@@ -69,12 +69,16 @@ export function AppSidebar() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
+              <SidebarMenuButton
+  asChild
+  data-active={pathname.startsWith(item.href)} // Utilisation de data-active
+  tooltip={item.label}
+>
+  <Link href={item.href}>
+    <a>{item.label}</a>
+  </Link>
+</SidebarMenuButton>
+
             </SidebarMenuItem>
           ))}
 
