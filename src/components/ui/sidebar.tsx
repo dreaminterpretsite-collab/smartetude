@@ -7,22 +7,15 @@ import { PanelLeft } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { useIsMobile } from "@/hooks/use-mobile"
-
-/* -------------------------------------------------------------------------- */
-/*                                   CONSTS                                   */
-/* -------------------------------------------------------------------------- */
-
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
 
 /* -------------------------------------------------------------------------- */
 /*                                   CONTEXT                                  */
@@ -36,21 +29,25 @@ type SidebarContextType = {
 
 const SidebarContext = React.createContext<SidebarContextType | null>(null)
 
-function useSidebar() {
+export function useSidebar() {
   const ctx = React.useContext(SidebarContext)
-  if (!ctx) throw new Error("useSidebar must be used within SidebarProvider")
+  if (!ctx) {
+    throw new Error("useSidebar must be used within SidebarProvider")
+  }
   return ctx
 }
 
 /* -------------------------------------------------------------------------- */
-/*                               PROVIDER                                     */
+/*                                PROVIDER                                    */
 /* -------------------------------------------------------------------------- */
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile()
   const [open, setOpen] = React.useState(true)
 
-  const toggle = () => setOpen((o) => !o)
+  const toggle = React.useCallback(() => {
+    setOpen((o) => !o)
+  }, [])
 
   return (
     <SidebarContext.Provider value={{ open, toggle, isMobile }}>
@@ -60,7 +57,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                  SIDEBAR                                   */
+/*                                 SIDEBAR                                    */
 /* -------------------------------------------------------------------------- */
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
@@ -69,7 +66,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
   if (isMobile) {
     return (
       <Sheet open={open}>
-        <SheetContent side="left" className="p-0 w-[--sidebar-width]">
+        <SheetContent side="left" className="p-0 w-64">
           {children}
         </SheetContent>
       </Sheet>
@@ -80,14 +77,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     <aside
       className={cn(
         "h-screen border-r bg-sidebar transition-all",
-        open ? "w-[--sidebar-width]" : "w-[--sidebar-width-icon]"
+        open ? "w-64" : "w-14"
       )}
-      style={
-        {
-          "--sidebar-width": SIDEBAR_WIDTH,
-          "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-        } as React.CSSProperties
-      }
     >
       {children}
     </aside>
@@ -95,16 +86,70 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                             MENU BUTTON                                    */
+/*                               TRIGGER                                      */
+/* -------------------------------------------------------------------------- */
+
+export function SidebarTrigger() {
+  const { toggle } = useSidebar()
+
+  return (
+    <Button variant="ghost" size="icon" onClick={toggle}>
+      <PanelLeft className="h-4 w-4" />
+    </Button>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               STRUCTURE                                    */
+/* -------------------------------------------------------------------------- */
+
+export function SidebarContent({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <div className="flex flex-col flex-1">{children}</div>
+}
+
+export function SidebarFooter({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <div className="border-t p-2">{children}</div>
+}
+
+export function SidebarSeparator() {
+  return <Separator className="my-2" />
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               MENU                                         */
+/* -------------------------------------------------------------------------- */
+
+export function SidebarMenu({ children }: { children: React.ReactNode }) {
+  return <ul className="flex flex-col gap-1 p-2">{children}</ul>
+}
+
+export function SidebarMenuItem({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <li>{children}</li>
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          MENU BUTTON                                       */
 /* -------------------------------------------------------------------------- */
 
 const sidebarMenuButtonVariants = cva(
-  "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent",
+  "flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm transition hover:bg-accent",
   {
     variants: {
       active: {
         true: "bg-accent font-medium",
-        false: "text-muted-foreground",
+        false: "",
       },
     },
     defaultVariants: {
@@ -114,7 +159,7 @@ const sidebarMenuButtonVariants = cva(
 )
 
 type SidebarMenuButtonProps =
-  React.ComponentPropsWithoutRef<"button"> &
+  React.ButtonHTMLAttributes<HTMLButtonElement> &
     VariantProps<typeof sidebarMenuButtonVariants> & {
       asChild?: boolean
       tooltip?: string
@@ -132,10 +177,7 @@ export const SidebarMenuButton = React.forwardRef<
   const button = (
     <Comp
       ref={ref}
-      className={cn(
-        sidebarMenuButtonVariants({ active }),
-        className
-      )}
+      className={cn(sidebarMenuButtonVariants({ active }), className)}
       {...props}
     />
   )
@@ -151,17 +193,3 @@ export const SidebarMenuButton = React.forwardRef<
 })
 
 SidebarMenuButton.displayName = "SidebarMenuButton"
-
-/* -------------------------------------------------------------------------- */
-/*                             TOGGLE BUTTON                                  */
-/* -------------------------------------------------------------------------- */
-
-export function SidebarToggle() {
-  const { toggle } = useSidebar()
-
-  return (
-    <Button variant="ghost" size="icon" onClick={toggle}>
-      <PanelLeft className="h-4 w-4" />
-    </Button>
-  )
-}
