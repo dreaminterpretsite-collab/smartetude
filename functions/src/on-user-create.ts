@@ -1,5 +1,6 @@
-import * as functions from 'firebase-functions';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 import type { UserProfile } from '../../src/lib/types';
 
 const db = admin.firestore();
@@ -9,11 +10,15 @@ const REFERRAL_BONUS = 1000;
  * Cloud Function that triggers on new user document creation in Firestore.
  * It handles the referral bonus logic and upline creation securely on the server.
  */
-export const onUserCreate = functions.firestore
-  .document('users/{userId}')
-  .onCreate(async (snap, context) => {
+export const onUserCreate = onDocumentCreated('users/{userId}', async (event) => {
+    const snap = event.data;
+    if (!snap) {
+      console.log('No data associated with the event');
+      return null;
+    }
+
     const newUser = snap.data() as UserProfile;
-    const { userId } = context.params;
+    const { userId } = event.params;
 
     if (!newUser) {
       console.log(`No data for new user: ${userId}`);
@@ -72,4 +77,4 @@ export const onUserCreate = functions.firestore
     }
 
     return null;
-  });
+});
