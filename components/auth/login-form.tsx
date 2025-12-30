@@ -20,7 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal, Loader2 } from 'lucide-react';
 import { useFirebase } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app';  // Importation de FirebaseError
+import { FirebaseError } from 'firebase/app';  // Import FirebaseError from 'firebase/app'
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Veuillez entrer une adresse email valide.' }),
@@ -49,7 +49,7 @@ export function LoginForm() {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push('/dashboard');
     } catch (e: any) {
-      if (e instanceof FirebaseError) {  // Vérification de FirebaseError
+      if (e instanceof FirebaseError) {  // Use FirebaseError for Firebase-specific errors
         setError(`Erreur Firebase : ${e.message}`);
       } else {
         setError('Email ou mot de passe incorrect.');
