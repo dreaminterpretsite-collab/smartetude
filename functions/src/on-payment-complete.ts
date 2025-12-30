@@ -1,5 +1,6 @@
-import * as functions from 'firebase-functions';
+import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 import type { Payment, UserProfile } from '../../src/lib/types';
 
 const db = admin.firestore();
@@ -12,11 +13,14 @@ const COMMISSION_RATES = [0.10, 0.03, 0.01];
  * When a payment status changes from 'pending' to 'completed', it distributes
  * referral commissions up to 3 levels in the user's upline.
  */
-export const onPaymentComplete = functions.firestore
-  .document('payments/{paymentId}')
-  .onUpdate(async (change, context) => {
-    const paymentAfter = change.after.data() as Payment;
-    const paymentBefore = change.before.data() as Payment;
+export const onPaymentComplete = onDocumentUpdated('payments/{paymentId}', async (event) => {
+    if (!event.data) {
+        return;
+    }
+
+    const paymentAfter = event.data.after.data() as Payment;
+    const paymentBefore = event.data.before.data() as Payment;
+    const paymentId = event.params.paymentId;
 
     // Trigger only when status becomes 'completed'
     if (paymentAfter.status !== 'completed' || paymentBefore.status === 'completed') {
@@ -63,11 +67,11 @@ export const onPaymentComplete = functions.firestore
         }
 
         await Promise.all(commissionPromises);
-        functions.logger.log(`Successfully distributed commissions for payment ${context.params.paymentId}.`);
+        functions.logger.log(`Successfully distributed commissions for payment ${paymentId}.`);
         return null;
 
     } catch (error) {
-        functions.logger.error(`Failed to distribute commissions for payment ${context.params.paymentId}:`, error);
+        functions.logger.error(`Failed to distribute commissions for payment ${paymentId}:`, error);
         return null;
     }
   });
